@@ -4,7 +4,63 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 from rich.live import Live
 from rich.panel import Panel
+from prompt_toolkit import PromptSession
 import time
 
+from src.TUI.commands import CommandHandler
+from src.oauth import authenticate_gmail
 
-# handles the interactive shell 
+# handles the interactive shell
+
+app = typer.Typer(help="Automation Agent - Personalized Cold-Email Internship Tool")
+console = Console()
+
+
+def main():
+    """
+    Main entry point for the interactive REPL shell.
+    """
+    console.print("[bold green]Welcome to Automation Agent![/bold green]")
+    console.print("Personalized Cold-Email Internship Automation Tool\n")
+
+    console.print("[cyan]Available commands:[/cyan]")
+    console.print("  • stats - View email and company statistics")
+    console.print("  • find_emails - Research companies and find emails")
+    console.print("  • send_emails - Send personalized cold emails")
+    console.print("  • help - Show available commands")
+    console.print("  • exit - Exit the shell\n")
+
+    # Initialize prompt session and command handler
+    session = PromptSession()
+    handler = CommandHandler()
+
+    gmail_service = authenticate_gmail()
+
+    # REPL Loop
+    while True:
+        try:
+            # Get user input
+            user_input = session.prompt("> ")
+
+            # Skip empty input
+            if not user_input.strip():
+                continue
+
+            # Exit condition
+            if user_input.strip().lower() in ["exit", "quit"]:
+                console.print("[yellow]Goodbye![/yellow]")
+                break
+
+            # Execute command
+            handler.execute(user_input)
+
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Use 'exit' to quit[/yellow]")
+            continue
+        except EOFError:
+            console.print("\n[yellow]Goodbye![/yellow]")
+            break
+
+
+if __name__ == "__main__":
+    main() 

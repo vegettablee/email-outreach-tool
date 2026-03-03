@@ -59,3 +59,54 @@ Main components
 - - where it starts with a large json  
 - rate limiting 
 
+
+# Current Part in Progress
+
+Instead of using an in-house scraper, use manual gemini pro thinking mode to return structured json based on a concentrated scraping scope/target(1-5 compannies at a time). 
+
+JSON will mimic the fields in the DDL script look like for each separate entity and will always follow the same order: 
+
+[
+  {
+  company : { Object }, 
+  emails : [{ Object }], 
+  recruiters : [{ Object }], 
+  jobs : [{ Object }]
+ }
+]
+
+Scraping rule guidelines: 
+- IF company has information, find any non-recruiter company-tied emails first, these include: 
+- 1. careers@ / hiring@ — most direct for job-related contact.
+- 2. hr@ / people@ / talent@ — human gatekeepers who route internally.
+- 3. Named leadership (CEO/Founder at smaller companies).
+- 4. hello@ / info@ — catch-alls, lower deliverability but still valid.
+- Continue to recruiters, look for emails tied to the 
+- If a company lacks information, then look for at least one company-related email, but no emails/recruiters.
+
+
+These rules apply to all entities besides company, and are the rules for returning JSON after scraping, in any case any of these rule are violated, return the entities affected as blank JSON with(ex. no recruiters found, return recruiters : [{ }]): 
+- Recruiters must have an email or linkedin. 
+- Open roles that qualify apply only to software related roles. 
+
+
+
+
+Emails can be tied to the company directly or tied directly to a recruiter, who is then tied to the company. There are some important scenarios that should be considered to prevent collisions/invalid insertions, these include: 
+- A company MUST exist before an email or recruiter is added to the DB 
+- If a recruiter has an email, then the recruiter MUST be added to the database before inserting into the recruiter_emails table 
+- If an email is found associated with an HR dept, then insert directly into the emails table 
+- If a recruiter is found, but no email can be located, do not insert recruiter into the DB
+
+Important checks before DB operations: 
+- Check if an email exists within the emails table AND the recruiter_emails table before any kind of insertion/modification  
+- Check status of both the email AND the recruiter, as they can be different depending on the company 
+
+What all can happen that is based on what can be found based on the JSON information given? General flow:
+- if Company email is found(ideally the HR dept): 
+- Info about company is found(insert into DB)
+- Recruiter is found without an email(recruiter does not get inserted)
+- Recruiter is found with an email(insert recruiter/email)
+- Job opening found(insert job for n amount of jobs if relevant)
+
+Research needs to have a general flow, and if certain requirements are not met at certain steps, then drop the research for that company and mark as "NoInfo". But what counts as not enough information? The motivation for this, is if not enough information can be found within the first scrape, then drop it to save tokens/resources. 
