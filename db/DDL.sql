@@ -42,7 +42,7 @@ create table jobs(
 job_id integer primary key autoincrement,
 company_id integer,
 role_name text not null, 
-source_url text unique not null, 
+source_url text not null, 
 is_open boolean not null,
 foreign key (company_id) references companies(company_id)
   on delete cascade

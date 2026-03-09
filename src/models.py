@@ -93,7 +93,7 @@ class Job(Base):
     job_id = Column(Integer, primary_key=True, autoincrement=True)
     company_id = Column(Integer, ForeignKey('companies.company_id', ondelete='CASCADE'))
     role_name = Column(Text, nullable=False)
-    source_url = Column(Text, unique=True, nullable=False)
+    source_url = Column(Text, nullable=False)  # Removed unique constraint
     is_open = Column(Boolean, nullable=False)
 
     # Relationships

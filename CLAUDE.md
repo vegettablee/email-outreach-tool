@@ -53,14 +53,12 @@ Tech Stack:
 
 Main components
 - tools
-- - query the db and help make judgments 
+- - db query functions
 - - google email tools  
-- research workflow 
-- - where it starts with a large json  
-- rate limiting 
-
-
-# Current Part in Progress: Cleaning data.json file and adding to the DB before email agent workflow
+- data pipeline 
+- - transforms data.json into usable, cleaned data 
+- rate limiting
+- - config.json controls these parameters
 
 Emails can be tied to the company directly or tied directly to a recruiter, who is then tied to the company. There are some important scenarios that should be considered to prevent collisions/invalid insertions, these include: 
 - A company MUST exist before an email or recruiter is added to the DB 
@@ -72,11 +70,49 @@ Important checks before DB operations:
 - Check if an email exists within the emails table AND the recruiter_emails table before any kind of insertion/modification  
 - Check status of both the email AND the recruiter, as they can be different depending on the company 
 
-What all can happen that is based on what can be found based on the JSON information given? General flow:
-- if Company email is found(ideally the HR dept): 
-- Info about company is found(insert into DB)
-- Recruiter is found without an email(recruiter does not get inserted)
-- Recruiter is found with an email(insert recruiter/email)
-- Job opening found(insert job for n amount of jobs if relevant)
+# Current Requirement in Progress: Orchestration Layer High-level Implementation
 
-Research needs to have a general flow, and if certain requirements are not met at certain steps, then drop the research for that company and mark as "NoInfo". But what counts as not enough information? The motivation for this, is if not enough information can be found within the first scrape, then drop it to save tokens/resources. 
+Overview: This goes over the high-level documentation for how the Gmail API integration integration and Gmail workflow management for sending cold personalized emails to companies. 
+
+Scope: This scope is focused on a hybrid approach, not full automation, because it will include a phase where I will personally need to review it to see what needs improvement. The main focus for this section is to incorporate(in order): 
+- Gmail API integration: what API functionalies/scopes are needed specifically, boundaries between usage, and rate limiting 
+- - this is not as simple as it looks, as context engineering is critical for this to work well. 
+- Session State: this state manages all of the workflow storage for the current session(draft, review, queued)
+- SQL queries/functions that retrieve: 
+- - Recruiters marked as safe to contact and the emails that have not been sent 
+- - Emails that have not been sent
+- - Companies that not been contacted or marked as 'N/A'
+- - Check if a given company is able to be contacted 
+- - Check if an email is able to be contacted 
+- - Company information 
+- Agent LLM Integration: separate agents specifically for drafting a personalized email and one for picking a resume given a job description. 
+- One workflow that can fully draft and personalize and email and put it into a queue to be sent later
+
+High-level design: 
+
+3 Layers of Separation: 
+Gmail API Layer: handles direct network calls to Google API
+Service Layer: invokes higher functionality(check, create, send) and acts as a separation layer between the agent and the Gmail API 
+Orchestration Layer: Acts as an entry point to workflow requests and manages all of the separate workflows/agents(this will without a doubt be the most complex, so the priority is to have some foundation laid out first, like classes and placeholder functions, because designing the rate limiting and the other features are a lot more difficult until there is some foundation) 
+
+Boundaries:
+  ├─ Gmail API Layer: only knows Google API structure 
+  ├─ Service Layer: only knows the Gmail API request functions  
+  ├─ Orchestration Layer: only knows which workflows can be used and when to use them, within this layer includes /agent and /workflows     which directly interact with the service layer when needed to complete higher functionality 
+
+Data that crosses boudaries: 
+- Orchestration -> Service: Workflow coordinates agents for the task completion, and the agent passes the name of the tool/function to be used(check email, create email, send email) to the service layer
+- Service -> Gmail API: Service invokes the calls needed from the API to make the request. 
+- Gmail API -> API: Gmail API layer invokes HTTP request to Google API.  
+
+Gmail API will have its own separate layer and this will allow an agent to be able to call this layer and do certain controlled database operations. The tools available will be limited due to security concerns and will encompass these three core functionalities: 
+- Check for an email 
+- Create an email(draft)
+- Send an email 
+
+Everytime this application is opened, a new session will be created which will handle temporary storage for email workflows using an FSM: 
+1. DRAFT
+2. REVIEW
+3. QUEUED
+
+The gmails themselves will live inside of the show_stats command, and rely on queries and logic built on top of whether num_sent is 0 or not, and if num_replied is 0 or not. 
