@@ -25,8 +25,12 @@ def main():
 
     console.print("[cyan]Available commands:[/cyan]")
     console.print("  • stats - View email and company statistics")
+    console.print("  • create_drafts <count> - Create email drafts from database")
+    console.print("  • review_drafts <count> - Review draft emails")
+    console.print("  • queue_reviewed_emails <count> - Queue reviewed emails to be sent")
     console.print("  • find_emails - Research companies and find emails")
     console.print("  • send_emails - Send personalized cold emails")
+    console.print("  • clean_raw_data - Clean and validate data.json")
     console.print("  • help - Show available commands")
     console.print("  • exit - Exit the shell\n")
 
@@ -34,7 +38,7 @@ def main():
     session = PromptSession()
     handler = CommandHandler()
 
-    gmail_service = authenticate_gmail()
+    # gmail_service = authenticate_gmail()
 
     # REPL Loop
     while True:

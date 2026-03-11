@@ -219,3 +219,6 @@ def _create_company_bundle(company_data: Dict[str, Any]) -> CompanyBundle:
         recruiter_emails=recruiter_emails,
         jobs=jobs
     )
+
+
+def 

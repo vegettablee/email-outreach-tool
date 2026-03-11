@@ -1,3 +1,6 @@
+# Your role as an agent 
+- You are to act as a collaborator who asks clarifying and thought-provoking questions, and does not build with assumptions apart from low-level implementation details that are non-trivial. IF at any point, you are confused on how to implement, stop and ask me directly. 
+
 # System Overview for Personalized Cold-Email Internship Automation Tool 
 
 Functional requirements: 
@@ -9,7 +12,6 @@ Functional requirements:
 2. Keep track of emails that are:
 - - sent 
 - - replied 
-- - 
 3. Extrapolate company info in the context of how I can contribute as an intern
 - - separate into roles(backend, fullstack, data engineer, solutions engineer, ai engineer)
 - - store company info as a context resource when sending cold emails
@@ -70,7 +72,31 @@ Important checks before DB operations:
 - Check if an email exists within the emails table AND the recruiter_emails table before any kind of insertion/modification  
 - Check status of both the email AND the recruiter, as they can be different depending on the company 
 
-# Current Requirement in Progress: Orchestration Layer High-level Implementation
+3 main layers of Separation: 
+Gmail API Layer: handles direct network calls to Google API
+Service Layer: invokes higher functionality(check, create, send) and acts as a separation layer between the agent and the Gmail API 
+Orchestration Layer: Acts as an entry point to workflow requests and manages all of the separate workflows/agents(this will without a doubt be the most complex, so the priority is to have some foundation laid out first, like classes and placeholder functions, because designing the rate limiting and the other features are a lot more difficult until there is some foundation) 
+
+Boundaries:
+  ├─ Gmail API Layer: only knows Google API structure 
+  ├─ Service Layer: only knows the Gmail API request functions  
+  ├─ Orchestration Layer: only knows which workflows can be used and when to use them, within this layer includes /agent and /workflows     which directly interact with the service layer when needed to complete higher functionality 
+
+
+Data that crosses boudaries: 
+- Orchestration -> Service: Workflow coordinates agents for the task completion, and the agent passes the name of the tool/function to be used(check email, create email, send email) to the service layer
+- Service -> Gmail API: Service invokes the calls needed from the API to make the request. 
+- Gmail API -> API: Gmail API layer invokes HTTP request to Google API.  
+
+Gmail API will have its own separate layer and this will allow an agent to be able to call this layer and do certain controlled database operations. The tools available will be limited due to security concerns and will encompass these three core functionalities: 
+- Check for an email 
+- Create an email(draft)
+- Send an email 
+
+Application flow per command:  
+1. commands.py takes the user input and parses it and routes it to the correct command handler.
+2. this command handler calls a method in the orchestrator class which has all of the separate workflows that can be used, and within these workflows, contains the calling of agents to complete a higher-level task(like for a drafting a cold email workflow)
+
 
 Overview: This goes over the high-level documentation for how the Gmail API integration integration and Gmail workflow management for sending cold personalized emails to companies. 
 
@@ -86,33 +112,6 @@ Scope: This scope is focused on a hybrid approach, not full automation, because 
 - - Check if an email is able to be contacted 
 - - Company information 
 - Agent LLM Integration: separate agents specifically for drafting a personalized email and one for picking a resume given a job description. 
-- One workflow that can fully draft and personalize and email and put it into a queue to be sent later
 
-High-level design: 
+# Current Requirement in Progress: First Commands/Workflows Integration and Basic rate Limiting 
 
-3 Layers of Separation: 
-Gmail API Layer: handles direct network calls to Google API
-Service Layer: invokes higher functionality(check, create, send) and acts as a separation layer between the agent and the Gmail API 
-Orchestration Layer: Acts as an entry point to workflow requests and manages all of the separate workflows/agents(this will without a doubt be the most complex, so the priority is to have some foundation laid out first, like classes and placeholder functions, because designing the rate limiting and the other features are a lot more difficult until there is some foundation) 
-
-Boundaries:
-  ├─ Gmail API Layer: only knows Google API structure 
-  ├─ Service Layer: only knows the Gmail API request functions  
-  ├─ Orchestration Layer: only knows which workflows can be used and when to use them, within this layer includes /agent and /workflows     which directly interact with the service layer when needed to complete higher functionality 
-
-Data that crosses boudaries: 
-- Orchestration -> Service: Workflow coordinates agents for the task completion, and the agent passes the name of the tool/function to be used(check email, create email, send email) to the service layer
-- Service -> Gmail API: Service invokes the calls needed from the API to make the request. 
-- Gmail API -> API: Gmail API layer invokes HTTP request to Google API.  
-
-Gmail API will have its own separate layer and this will allow an agent to be able to call this layer and do certain controlled database operations. The tools available will be limited due to security concerns and will encompass these three core functionalities: 
-- Check for an email 
-- Create an email(draft)
-- Send an email 
-
-Everytime this application is opened, a new session will be created which will handle temporary storage for email workflows using an FSM: 
-1. DRAFT
-2. REVIEW
-3. QUEUED
-
-The gmails themselves will live inside of the show_stats command, and rely on queries and logic built on top of whether num_sent is 0 or not, and if num_replied is 0 or not. 

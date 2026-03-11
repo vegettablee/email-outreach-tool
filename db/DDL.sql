@@ -47,6 +47,7 @@ is_open boolean not null,
 foreign key (company_id) references companies(company_id)
   on delete cascade
 ); 
+
 -- Workflow Order:
 -- Create the company
 -- Create the email (linked to the company)

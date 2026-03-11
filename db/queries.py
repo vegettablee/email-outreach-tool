@@ -104,3 +104,7 @@ def get_recruiters_with_unsent_emails(session: Session) -> list[Recruiter]:
     )
 
     return results
+
+def get_companies_not_contacted(session: Session) -> list[Company]: 
+    pass 
+
