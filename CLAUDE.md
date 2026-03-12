@@ -113,5 +113,8 @@ Scope: This scope is focused on a hybrid approach, not full automation, because 
 - - Company information 
 - Agent LLM Integration: separate agents specifically for drafting a personalized email and one for picking a resume given a job description. 
 
-# Current Requirement in Progress: First Commands/Workflows Integration and Basic rate Limiting 
+SQL Update Constraints: 
+- If updating contact_status on a recruiter to rejected/ghosted, then you must find all of the emails and mark them the same as well. 
+- If updating contact_status on a company, then find all of the emails tied to the company and mark as non-contactable(the emails )
 
+# Current Requirement in Progress: First Commands/Workflows Integration and Basic rate Limiting 

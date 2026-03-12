@@ -9,14 +9,14 @@ TASK: Research the given company. Return a single raw JSON array matching the sc
 
 DECISION GATE:
 IF company website, approximate size, and at least one of [careers page, LinkedIn, named employee] cannot be confirmed:
-  → Fill company fields only. Return emails: [], recruiters: [], jobs: [].
+  → Fill company fields only. Return emails: [], recruiters: [], jobs: [].
 ELSE:
-  → Proceed to all phases.
+  → Proceed to all phases.
 
 ---
 
 PHASE 1 — COMPANY
-Extract: legal name, size, industry category, city, state, one-sentence description.
+Extract: legal name, website, size, industry category, city, state, one-sentence description.
 
 PHASE 2 — EMAILS (non-recruiter, in priority order)
 1. careers@ / hiring@
@@ -55,44 +55,45 @@ OUTPUT RULES:
 
 SCHEMA:
 [
-  {
-    "company": {
-      "cname": "",
-      "company_size": "",
-      "category": "",
-      "company_city": "",
-      "company_state": "",
-      "company_description": "",
-      "contact_status": "N/A"
-    },
-    "emails": [
-      {
-        "email": "",
-        "num_sent": 0,
-        "num_replied": 0,
-        "template_id": null,
-        "last_date_sent": null,
-        "contact_status": "N/A"
-      }
-    ],
-    "recruiters": [
-      {
-        "fname": "",
-        "lname": "",
-        "linkedin": "Unknown",
-        "recruiter_emails": [
-          {
-            "email": ""
-          }
-        ]
-      }
-    ],
-    "jobs": [
-      {
-        "role_name": "",
-        "source_url": "",
-        "is_open": true
-      }
-    ]
-  }
+  {
+    "company": {
+      "cname": "",
+      "company_website": "",
+      "company_size": "",
+      "category": "",
+      "company_city": "",
+      "company_state": "",
+      "company_description": "",
+      "contact_status": "N/A"
+    },
+    "emails": [
+      {
+        "email": "",
+        "num_sent": 0,
+        "num_replied": 0,
+        "template_id": null,
+        "last_date_sent": null,
+        "contact_status": "N/A"
+      }
+    ],
+    "recruiters": [
+      {
+        "fname": "",
+        "lname": "",
+        "linkedin": "Unknown",
+        "recruiter_emails": [
+          {
+            "email": ""
+          }
+        ]
+      }
+    ],
+    "jobs": [
+      {
+        "role_name": "",
+        "source_url": "",
+        "is_open": true
+      }
+    ]
+  }
 ]

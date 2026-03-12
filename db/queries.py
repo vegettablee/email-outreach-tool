@@ -105,6 +105,59 @@ def get_recruiters_with_unsent_emails(session: Session) -> list[Recruiter]:
 
     return results
 
-def get_companies_not_contacted(session: Session) -> list[Company]: 
-    pass 
+def get_companies_not_contacted(session: Session) -> list[Company]:
+    pass
+
+
+def find_valid_emails(session: Session) -> tuple[list[str], list[int], list[str], list[int]]:
+    """
+    Find all contactable, unsent emails and separate them into company emails and recruiter emails.
+
+    This function performs a LEFT JOIN between emails and recruiter_emails tables to identify
+    which emails are tied directly to companies vs. tied to recruiters.
+
+    Args:
+        session: SQLAlchemy session
+
+    Returns:
+        Tuple containing:
+        - company_emails: List of email addresses tied directly to companies
+        - company_ids: List of company IDs corresponding to company_emails
+        - recruiter_emails: List of email addresses tied to recruiters
+        - recruiter_company_ids: List of company IDs corresponding to recruiter_emails
+    """
+    from src.models import RecruiterEmail
+    from sqlalchemy import case
+
+    # Single query with LEFT JOIN to get all emails and mark recruiter emails
+    results = (
+        session.query(
+            Email.email,
+            Email.company_id,
+            case(
+                (RecruiterEmail.email.isnot(None), 1),
+                else_=0
+            ).label('is_recruiter')
+        )
+        .outerjoin(RecruiterEmail, Email.email == RecruiterEmail.email)
+        .filter(Email.contact_status == 'N/A')
+        .filter(Email.num_sent == 0)
+        .all()
+    )
+
+    # Separate into company emails and recruiter emails
+    company_emails = []
+    company_ids = []
+    recruiter_emails = []
+    recruiter_company_ids = []
+
+    for row in results:
+        if row.is_recruiter == 1:
+            recruiter_emails.append(row.email)
+            recruiter_company_ids.append(row.company_id)
+        else:
+            company_emails.append(row.email)
+            company_ids.append(row.company_id)
+
+    return (company_emails, company_ids, recruiter_emails, recruiter_company_ids) 
 

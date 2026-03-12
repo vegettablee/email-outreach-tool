@@ -13,6 +13,7 @@ class Company(Base):
 
     company_id = Column(Integer, primary_key=True, autoincrement=True)
     cname = Column(Text, unique=True, nullable=False)
+    company_website = Column(Text)
     company_size = Column(Text)
     category = Column(Text)
     company_city = Column(Text)

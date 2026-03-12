@@ -1,6 +1,7 @@
 create table companies(
 company_id integer primary key autoincrement, 
 cname text unique not null,
+company_website text,
 company_size text, 
 category text , -- TODO later once decided: check(category in ('startup', 'mid-size', etc))
 company_city text, 

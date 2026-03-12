@@ -1,7 +1,15 @@
 # registers/initializes all of the commands, gather everything from the workflows and call them
 # this is where most rate limiting will take place
 
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from rich.console import Console
+from src.services.data_pipeline import run_clean_and_insert_with_display
+from db.service import clear_database
+from db.connection import get_session
 
 console = Console()
 
@@ -12,6 +20,7 @@ class CommandHandler:
             "find_emails": self.find_emails,
             "send_emails": self.send_emails,
             "clean_raw_data": self.clean_raw_data,
+            "clear_database": self.clear_database,
             "create_drafts": self.create_drafts,
             "review_drafts": self.review_drafts,
             "queue_reviewed_emails": self.queue_reviewed_emails,
@@ -60,15 +69,14 @@ class CommandHandler:
     def show_stats(self, args):
         """Display statistics about emails and companies."""
         console.print("[cyan]Fetching statistics...[/cyan]")
-        # two main stats stat functionalities are required
-        # overall stats needed via SQL queries: 
 
-        # company emails that have not been sent and uncontacted(check contact status for company and email num_sent = 0)
-        # recruiter emails that have not been sent and uncontacted(check contact_status for company AND recruiter, and email num_sent = 0)
-        # total emails that have not been sent and uncontacted(check contact_status on email and num_sent = 0)
-        # emails that have been replied too(create a separate function that invokes a refresh, for now, just set to 0)
-        # 
+        # stats needed for now: 
+        # company emails that have not been sent and uncontacted
+        # recruiter emails that have not been sent and uncontacted
+        # total emails that have not been sent and uncontacted(check contact_status on email and num_sent = 0
+        
 
+        # TODO LATER:
         # email_session stats needed via email_session.json: 
         # number of drafts
         # number of drafts to review 
@@ -108,8 +116,9 @@ class CommandHandler:
         console.print(f"[cyan]Queueing {count} reviewed emails...[/cyan]")
         # TODO: Call orchestrator.run_queue_email_workflow(count)
     
-    def clean_raw_data(self, args): # cleans the data.json file, validates the files before starting the email automation workflow 
-        console.print("Cleaning data.json file and inserting into DB...")
+    def clean_raw_data(self, args):
+        """Clean and validate data.json, then insert into database."""
+        run_clean_and_insert_with_display()
 
     def find_emails(self, args):
         """Research companies and find recruiter emails."""
@@ -132,6 +141,39 @@ class CommandHandler:
         
         console.print("[yellow]Note: Email workflow not yet implemented[/yellow]")
         console.print(f"[dim]Args received: {args}[/dim]\n")
+    def clear_database(self, args):
+        """Clear all data from the database."""
+        console.print("[yellow]Warning: This will delete ALL data from the database![/yellow]")
+        console.print("[yellow]This action cannot be undone.[/yellow]\n")
+
+        # Ask for confirmation
+        confirm = input("Type 'yes' to confirm: ").strip().lower()
+
+        if confirm != 'yes':
+            console.print("[cyan]Database clear cancelled.[/cyan]\n")
+            return
+
+        console.print("[cyan]Clearing database...[/cyan]\n")
+
+        try:
+            with get_session() as session:
+                result = clear_database(session)
+                session.commit()
+
+                if result.get('error'):
+                    console.print(f"[red]Error clearing database: {result['error']}[/red]\n")
+                    return
+
+                console.print("[bold]Database Cleared Successfully:[/bold]")
+                console.print(f"  Companies deleted: {result['companies_deleted']}")
+                console.print(f"  Emails deleted: {result['emails_deleted']}")
+                console.print(f"  Recruiters deleted: {result['recruiters_deleted']}")
+                console.print(f"  Recruiter Emails deleted: {result['recruiter_emails_deleted']}")
+                console.print(f"  Jobs deleted: {result['jobs_deleted']}\n")
+                console.print("[green]Database is now empty![/green]\n")
+
+        except Exception as e:
+            console.print(f"[red]Unexpected error: {e}[/red]\n")
 
     def show_help(self, args):
         """Show available commands and usage."""
@@ -155,6 +197,8 @@ class CommandHandler:
         console.print("  Example: send_emails recipient=recruiter@company.com\n")
         console.print("[green]clean_raw_data[/green]")
         console.print("  Clean and validate data.json before insertion\n")
+        console.print("[green]clear_database[/green]")
+        console.print("  Clear all data from the database (requires confirmation)\n")
         console.print("[green]help[/green]")
         console.print("  Show this help message\n")
         console.print("[green]exit[/green]")

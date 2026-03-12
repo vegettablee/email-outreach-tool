@@ -31,6 +31,7 @@ def main():
     console.print("  • find_emails - Research companies and find emails")
     console.print("  • send_emails - Send personalized cold emails")
     console.print("  • clean_raw_data - Clean and validate data.json")
+    console.print("  • clear_database - Clear all data from the database")
     console.print("  • help - Show available commands")
     console.print("  • exit - Exit the shell\n")
 

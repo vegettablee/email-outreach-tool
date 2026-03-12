@@ -13,7 +13,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.models import Company, Email, Recruiter, RecruiterEmail, Job
-from db.validation import CompanyBundle
+from src.validation import CompanyBundle
 
 
 def check_company_exists(session: Session, cname: str) -> Optional[Company]:
@@ -226,3 +226,70 @@ def insert_company_bundle(
         raise  # Re-raise so caller can handle rollback
 
     return result
+
+
+def clear_database(session: Session) -> Dict[str, Any]:
+    """
+    Clear all data from the database.
+
+    Deletes all records from all tables in the correct order to avoid
+    foreign key constraint violations. Uses cascade deletes where configured.
+
+    Args:
+        session: SQLAlchemy session
+
+    Returns:
+        Dict with deletion counts:
+        {
+            'success': bool,
+            'companies_deleted': int,
+            'emails_deleted': int,
+            'recruiters_deleted': int,
+            'recruiter_emails_deleted': int,
+            'jobs_deleted': int,
+            'error': str | None
+        }
+    """
+    result = {
+        'success': False,
+        'companies_deleted': 0,
+        'emails_deleted': 0,
+        'recruiters_deleted': 0,
+        'recruiter_emails_deleted': 0,
+        'jobs_deleted': 0,
+        'error': None
+    }
+
+    try:
+        # Delete in reverse dependency order to avoid FK violations
+        # Note: Since companies have cascade delete, deleting companies
+        # will also delete emails and jobs automatically
+
+        # Delete recruiter_emails first (depends on recruiters and emails)
+        recruiter_emails_count = session.query(RecruiterEmail).delete()
+        result['recruiter_emails_deleted'] = recruiter_emails_count
+
+        # Delete recruiters (no dependencies)
+        recruiters_count = session.query(Recruiter).delete()
+        result['recruiters_deleted'] = recruiters_count
+
+        # Delete jobs (depends on companies, but will be cascade deleted anyway)
+        jobs_count = session.query(Job).delete()
+        result['jobs_deleted'] = jobs_count
+
+        # Delete emails (depends on companies, but will be cascade deleted anyway)
+        emails_count = session.query(Email).delete()
+        result['emails_deleted'] = emails_count
+
+        # Delete companies last (has cascade delete configured)
+        companies_count = session.query(Company).delete()
+        result['companies_deleted'] = companies_count
+
+        session.flush()
+        result['success'] = True
+
+        return result
+
+    except Exception as e:
+        result['error'] = str(e)
+        raise  # Re-raise so caller can handle rollback 

@@ -2,6 +2,7 @@
 {
 "company": {
 "cname": "Motivity Labs Inc.",
+"company_website": "https://motivitylabs.com",
 "company_size": "450 - 1,200",
 "category": "IT Services & IT Consulting",
 "company_city": "Irving",
@@ -83,6 +84,237 @@
 {
 "role_name": "Python Developer",
 "source_url": "https://motivitylabs.com/job-openings/",
+"is_open": true
+}
+]
+},
+{
+"company": {
+"cname": "Caris Life Sciences",
+"company_website": "https://www.carislifesciences.com",
+"company_size": "Mid-size",
+"category": "Healthtech / AI TechBio",
+"company_city": "Irving",
+"company_state": "TX",
+"company_description": "Biotechnology company specializing in molecular profiling and blood-based diagnostic technologies to transform cancer care.",
+"contact_status": "N/A"
+},
+"emails": [
+{
+"email": "CorpComm@CarisLS.com",
+"num_sent": 0,
+"num_replied": 0,
+"template_id": null,
+"last_date_sent": null,
+"contact_status": "N/A"
+}
+],
+"recruiters": [
+{
+"fname": "Joshua",
+"lname": "Fisher",
+"linkedin": "https://www.linkedin.com/in/joshua-fisher-5364177/",
+"recruiter_emails": [{}]
+}
+],
+"jobs": [
+{
+"role_name": "Senior Software Engineer - Clinical Systems",
+"source_url": "https://www.indeed.com/cmp/Caris-Life-Sciences/jobs",
+"is_open": true
+},
+{
+"role_name": "Data Scientist - Deep Learning",
+"source_url": "https://www.indeed.com/cmp/Caris-Life-Sciences/jobs",
+"is_open": true
+},
+{
+"role_name": "Salesforce Architect",
+"source_url": "https://www.indeed.com/cmp/Caris-Life-Sciences/jobs",
+"is_open": true
+}
+]
+},
+{
+"company": {
+"cname": "Wellfit Technologies",
+"company_website": "https://www.wellfit.com",
+"company_size": "Small",
+"category": "Healthtech / Fintech",
+"company_city": "Irving",
+"company_state": "TX",
+"company_description": "Healthcare technology platform that simplifies patient financing, dental plans, and payment processes for providers and patients.",
+"contact_status": "N/A"
+},
+"emails": [
+{
+"email": "Wellfitpr@piercom.com",
+"num_sent": 0,
+"num_replied": 0,
+"template_id": null,
+"last_date_sent": null,
+"contact_status": "N/A"
+}
+],
+"recruiters": [{}],
+"jobs": [
+{
+"role_name": "Senior Full Stack Software Engineer",
+"source_url": "https://www.indeed.com/viewjob?jk=cfc8d646f6fdd9f0",
+"is_open": true
+},
+{
+"role_name": "Senior Angular/Full-Stack Software Engineer",
+"source_url": "https://www.ziprecruiter.com/Jobs/Wellfit-Technologies/-in-Irving,TX",
+"is_open": true
+},
+{
+"role_name": "Senior Software Engineer, Payments",
+"source_url": "https://www.ziprecruiter.com/c/Wellfit-Technologies/Job/Senior-Software-Engineer,-Payments/-in-Irving,TX?jid=26262fb0f462395e",
+"is_open": true
+},
+{
+"role_name": ".NET Angular Reporting Developer",
+"source_url": "https://www.theladders.com/job/dot-net-angular-reporting-developer-wellfit-technologies-irving-tx_85960961",
+"is_open": true
+}
+]
+},
+{
+"company": {
+"cname": "datatruck",
+"company_website": "https://www.datatruck.io",
+"company_size": "Startup",
+"category": "Logistics SaaS",
+"company_city": "Irving",
+"company_state": "TX",
+"company_description": "Builds an AI-native transportation management system (TMS) designed for long-haul carriers.",
+"contact_status": "N/A"
+},
+"emails": [{}],
+"recruiters": [{}],
+"jobs": [
+{
+"role_name": "Backend Engineer (Python)",
+"source_url": "https://www.datatruck.io/careers",
+"is_open": true
+}
+]
+},
+{
+"company": {
+"cname": "Steer Health",
+"company_website": "https://www.steerhealth.io",
+"company_size": "Startup",
+"category": "Healthcare AI / SaaS",
+"company_city": "Irving",
+"company_state": "TX",
+"company_description": "AI-powered growth and automation platform that enables healthcare organizations to enhance patient engagement and streamline operations.",
+"contact_status": "N/A"
+},
+"emails": [
+{
+"email": "hello@steerhealth.ai",
+"num_sent": 0,
+"num_replied": 0,
+"template_id": null,
+"last_date_sent": null,
+"contact_status": "N/A"
+},
+{
+"email": "privacy@steerhealth.io",
+"num_sent": 0,
+"num_replied": 0,
+"template_id": null,
+"last_date_sent": null,
+"contact_status": "N/A"
+}
+],
+"recruiters": [{}],
+"jobs": [
+{
+"role_name": "Engineering Manager - Healthcare AI",
+"source_url": "https://apply.workable.com/steer-health/j/856BF8ED2C",
+"is_open": true
+},
+{
+"role_name": "Director of Engineering",
+"source_url": "https://himalayas.app/companies/steer-health/jobs/director-of-engineering-8669303367",
+"is_open": true
+}
+]
+},
+{
+"company": {
+"cname": "MicroAI",
+"company_website": "https://www.micro.ai",
+"company_size": "Small",
+"category": "Edge AI / IoT",
+"company_city": "Irving",
+"company_state": "TX",
+"company_description": "Delivers intelligent asset management solutions using edge-native AI for manufacturing, telecom, and automotive sectors.",
+"contact_status": "N/A"
+},
+"emails": [
+{
+"email": "jobs@micro.ai",
+"num_sent": 0,
+"num_replied": 0,
+"template_id": null,
+"last_date_sent": null,
+"contact_status": "N/A"
+}
+],
+"recruiters": [{}],
+"jobs": [
+{
+"role_name": "Full Stack Developer",
+"source_url": "https://www.micro.ai/careers/full-stack-developer",
+"is_open": true
+},
+{
+"role_name": "Machine Learning Engineer",
+"source_url": "https://www.indeed.com/q-ai-engineer-l-irving,-tx-jobs.html",
+"is_open": true
+},
+{
+"role_name": "AI Product Manager",
+"source_url": "https://www.micro.ai/careers",
+"is_open": true
+}
+]
+},
+{
+"company": {
+"cname": "Yendo",
+"company_website": "https://www.yendo.com",
+"company_size": "Mid-size",
+"category": "Fintech",
+"company_city": "Dallas",
+"company_state": "TX",
+"company_description": "Credit card provider that offers credit cards secured by the value of the customer's vehicle.",
+"contact_status": "N/A"
+},
+"emails": [
+{
+"email": "recruiting@yendo.com",
+"num_sent": 0,
+"num_replied": 0,
+"template_id": null,
+"last_date_sent": null,
+"contact_status": "N/A"
+}
+],
+"recruiters": [{}],
+"jobs": [
+{
+"role_name": "Senior Backend Engineer",
+"source_url": "https://jobs.ashbyhq.com/yendo",
+"is_open": true
+},
+{
+"role_name": "Manager Credit Risk",
+"source_url": "https://jobs.ashbyhq.com/yendo",
 "is_open": true
 }
 ]

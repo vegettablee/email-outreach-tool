@@ -78,7 +78,7 @@ def validate_fields(raw_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 def _is_valid_company(company_data: Dict[str, Any]) -> bool:
     """Check if company has all required fields present and non-empty."""
-    required_fields = ['cname', 'company_size', 'category', 'company_city', 'company_state', 'company_description']
+    required_fields = ['cname', 'company_website', 'company_size', 'category', 'company_city', 'company_state', 'company_description']
 
     for field in required_fields:
         if field not in company_data or company_data[field] is None or company_data[field] == '':
@@ -141,6 +141,7 @@ def _create_company_bundle(company_data: Dict[str, Any]) -> CompanyBundle:
     company_dict = company_data['company']
     company = Company(
         cname=company_dict['cname'],
+        company_website=company_dict.get('company_website', ''),
         company_size=company_dict['company_size'],
         category=company_dict['category'],
         company_city=company_dict['company_city'],
@@ -220,5 +221,3 @@ def _create_company_bundle(company_data: Dict[str, Any]) -> CompanyBundle:
         jobs=jobs
     )
 
-
-def 

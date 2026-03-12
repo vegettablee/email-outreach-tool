@@ -44,7 +44,23 @@ class OrchestrationLayer:
     pass
 
   def run_draft_email_workflow(self): 
-    # fetch emails
+    # all_emails = DraftEmailWorkflow.query_database()
+    # company_emails = all_emails[0] 
+    # company_email_ids = all_emails[1]
+    # recruiter_emails = all_emails[2] 
+    # recruiter_email_company_ids = all_emails[3] 
+    # for company_email, c_idx in enumerate(company_emails):
+    #   context = get_company_context(company_email, company_email_ids[c_idx])
+    #   is_successful, draft = draft_email(context : context, is_recruiter : False) # make sure it is passed like this, is_recruiter needs to be readable 
+    #   session.add_draft(draft)
+    # for recruiter_email, r_idx in enumerate(recruiter_emails): 
+    #   company_context = get_company_context(recruiter_email, recruiter_email_company_ids[r_idx])
+    #   recruiter_context = get_recruiter_context(recruiter_email, recruiter_email_company_ids[r_idx])
+    #   context = company_context + recruiter_context
+    #   is_successful, draft = draft_email(context : context, is_recruiter : True) 
+    #   session.add_draft(draft) # update email session 
+
+
     pass 
   
   def run_review_email_workflow(self): 
