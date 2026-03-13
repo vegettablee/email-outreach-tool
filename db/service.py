@@ -259,7 +259,7 @@ def clear_database(session: Session) -> Dict[str, Any]:
         'jobs_deleted': 0,
         'error': None
     }
-
+ 
     try:
         # Delete in reverse dependency order to avoid FK violations
         # Note: Since companies have cascade delete, deleting companies

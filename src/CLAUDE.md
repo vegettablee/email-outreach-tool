@@ -51,17 +51,6 @@ class DraftEmailWorkflow:
     # check if is_recruiter is True then run email personalization agent for company emails only, else run email personalization for recruiter emails only, do not worry about the
 
   
-Queries that may need to be created/modified in queries.py: 
-- find_valid_emails() 
-- - Complex query that returns: 
-  email_address              | company_id | is_recruiter
-  ---------------------------|------------|-------------
-  hr@company1.com            | 1          | 0           <- Company email
-  jobs@company2.com          | 2          | 0           <- Company email
-  sarah.recruiter@company1.com| 1          | 1           <- Recruiter email
-  john.hr@company3.com       | 3          | 1           <- Recruiter email
-- So afterwards, separating emails by company relation only and recruiter/company becomes a sorting task afterwards. 
-
 
 
 

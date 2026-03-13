@@ -39,7 +39,8 @@ def main():
     session = PromptSession()
     handler = CommandHandler()
 
-    # gmail_service = authenticate_gmail()
+
+    gmail_service = authenticate_gmail()
 
     # REPL Loop
     while True:

@@ -8,6 +8,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from rich.console import Console
 from src.services.data_pipeline import run_clean_and_insert_with_display
+from src.services.stats import get_stats
+from src.automation.orchestrator import OrchestrationLayer
 from db.service import clear_database
 from db.connection import get_session
 
@@ -15,6 +17,7 @@ console = Console()
 
 class CommandHandler:
     def __init__(self):
+        self.orchestrator = OrchestrationLayer()
         self.commands = {
             "stats": self.show_stats,
             "find_emails": self.find_emails,
@@ -69,26 +72,18 @@ class CommandHandler:
     def show_stats(self, args):
         """Display statistics about emails and companies."""
         console.print("[cyan]Fetching statistics...[/cyan]")
+        company_emails_count, recruiter_emails_count, total_emails_count = get_stats()
 
-        # stats needed for now: 
-        # company emails that have not been sent and uncontacted
-        # recruiter emails that have not been sent and uncontacted
-        # total emails that have not been sent and uncontacted(check contact_status on email and num_sent = 0
-        
+        console.print("\n[bold]Email Statistics:[/bold]")
+        console.print(f"  Company emails that can be sent: {company_emails_count}")
+        console.print(f"  Recruiter emails that can be sent: {recruiter_emails_count}")
+        console.print(f"  Total emails that can be sent: {total_emails_count}\n")
 
         # TODO LATER:
-        # email_session stats needed via email_session.json: 
+        # email_session stats needed via email_session.json:
         # number of drafts
-        # number of drafts to review 
-        # number of emails queued 
-        # TODO: Query database for actual stats
-        console.print("\n[bold]Email Statistics:[/bold]")
-        console.print("  Emails sent: 0")
-        console.print("  Emails pending: 0")
-        console.print("  Replies received: 0")
-        console.print("\n[bold]Company Statistics:[/bold]")
-        console.print("  Companies researched: 0")
-        console.print("  Contacts found: 0\n")
+        # number of drafts to review
+        # number of emails queued
 
     def run_cold_email_workflow(self, args):
         """
@@ -102,7 +97,7 @@ class CommandHandler:
         """Create email drafts from database entries."""
         count = args.get("count", 0)
         console.print(f"[cyan]Creating {count} drafts from database...[/cyan]")
-        # TODO: Call orchestrator.run_draft_email_workflow(count)
+        self.orchestrator.run_draft_email_workflow(count)
 
     def review_drafts(self, args):
         """Review draft emails."""

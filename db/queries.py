@@ -108,6 +108,96 @@ def get_recruiters_with_unsent_emails(session: Session) -> list[Recruiter]:
 def get_companies_not_contacted(session: Session) -> list[Company]:
     pass
 
+def get_company(session: Session, company_id: int) -> dict:
+    """
+    Get company information by company_id.
+
+    Args:
+        session: SQLAlchemy session
+        company_id: Company ID to retrieve
+
+    Returns:
+        Dictionary containing company fields (excluding relationships):
+        {
+            'company_id': int,
+            'cname': str,
+            'company_website': str,
+            'company_size': str,
+            'category': str,
+            'company_city': str,
+            'company_state': str,
+            'company_description': str,
+            'contact_status': str
+        }
+        Returns None if company not found.
+    """
+    company = session.query(Company).filter_by(company_id=company_id).first()
+
+    if not company:
+        return None
+
+    return {
+        'company_id': company.company_id,
+        'cname': company.cname,
+        'company_website': company.company_website,
+        'company_size': company.company_size,
+        'category': company.category,
+        'company_city': company.company_city,
+        'company_state': company.company_state,
+        'company_description': company.company_description,
+        'contact_status': company.contact_status
+    }
+
+def get_recruiter_email(session: Session, recruiter_email: str) -> int:
+    """
+    Get recruiter_id from a recruiter email address.
+
+    Args:
+        session: SQLAlchemy session
+        recruiter_email: Recruiter email address
+
+    Returns:
+        recruiter_id (int) if found, None otherwise
+    """
+    from src.models import RecruiterEmail
+
+    result = session.query(RecruiterEmail).filter_by(email=recruiter_email).first()
+
+    if not result:
+        return None
+
+    return result.recruiter_id 
+
+def get_recruiter(session: Session, recruiter_id: int) -> dict:
+    """
+    Get recruiter information by recruiter_id.
+
+    Args:
+        session: SQLAlchemy session
+        recruiter_id: Recruiter ID to retrieve
+
+    Returns:
+        Dictionary containing recruiter fields (excluding relationships):
+        {
+            'recruiter_id': int,
+            'fname': str,
+            'lname': str,
+            'linkedin': str
+        }
+        Returns None if recruiter not found.
+    """
+    recruiter = session.query(Recruiter).filter_by(recruiter_id=recruiter_id).first()
+
+    if not recruiter:
+        return None
+
+    return {
+        'recruiter_id': recruiter.recruiter_id,
+        'fname': recruiter.fname,
+        'lname': recruiter.lname,
+        'linkedin': recruiter.linkedin
+    }
+
 
 def find_valid_emails(session: Session) -> tuple[list[str], list[int], list[str], list[int]]:
     """
