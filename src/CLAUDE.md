@@ -1,28 +1,4 @@
-# Current Requirement in Progress: First Commands/Workflows Integration and Basic rate Limiting 
-
-Scope: The main focus for the commands/workflows that will be implemented is going to be the workflows for: 
-- drafting emails, manully reviewing emails, and queueing emails to be sent via Gmail API 
-
-Key CLI arguments for commands: 
-- draft: number to draft
-- review: number to review 
-- queue: number to queue 
-
-Orchestration Layer Architecture and Interaction Patterns: 
-
-Orchestration Layer Implementation: 
-- contains multiple classes that instantiate a workflow class, and simply call the relevant workflow classes with key fields that are required, one of these fields include a rate-limiting variable pulled from the config.json file. 
-
-Orchestration layer data flow in more detail: 
-1. Commands.py calls the orchestrator class with its relevant workflow(draft, review, queue) 
-2. Orchestrator reads the config.json file and pulls the rate-limiting variables 
-3. Orchestrator calls workflow function with relevant arguments, including the rate-limiting variables 
-4. Workflow handles and return what was successfully completed: 
-- Query database for data needed
-- Coordinate multiple steps in sequence
-- Call agents with prepared context
-- Update session state
-- Handle workflow-specific errors
+# Current Requirement in Progress: Draft Workflow Agent Implementation 
 
 Workflow classes/functions: 
 
@@ -35,26 +11,35 @@ class DraftEmailWorkflow:
   def query_database() -> tuple (list, list): # this only gets run once for a batch of emails 
     # get all of the emails that can be sent(use queries.py) 
     # use these emails and run find_recruiter_emails(), emails returned are recruiter emails, and those not part of the original
+    -- COMPLETED -- 
   
   def find_valid_emails(emails : list) -> tuple(list, list, list, list): 
     # takes a list of emails to check, the first element in the tuple contains the company emails, and the second list contains the company ids from the actual email, the third list is recruiter emails, the idea is that when checking if an email exists inside of the recruiter_email table, since it is a binary operation, these can be easily separated, the fourth list is the company_ids tied to the recruiter emails. need to keep track of the ids for context injection later for email personalization and other purposes
+    -- COMPLETED -- 
   
   def get_company_context(company_email : str, company_id : int) -> dict:
     # use the company_id to query the company table and then pull the relevant data 
     # return context where context is a dictionary with the same fields as the COMPANY entity in the DDL script 
+    -- COMPLETED -- 
 
   def get_recruiter_context(recruiter_email : str, company_id : int) -> dict: 
     # use the company_id to query the company table then pull relevant data 
+    -- COMPLETED -- 
 
-  def draft_email(context, is_recruiter : bool) -> dict: # leave this blank for now until the logic is decided for the agent  
-    # run a SQL query that uses company_id and pulls relevant company description fields for context(implement in queries.py and call here)
-    # check if is_recruiter is True then run email personalization agent for company emails only, else run email personalization for recruiter emails only, do not worry about the
+# -- Current focus on implementations: 
 
+class AgentManager: 
+-- Purpose: lazy initializes different agents/tools when called and returns them, or if they already exist just return 
+-- Currently, this just contains the different placeholder agent initializations.
+
+Orchestrator class: 
+  def run_draft_email_workflow(self, email_count : int):
+  - right now, the orchestrator is intializing the agent manager class, which contains the the agents/tools that can be run, and 
+    are passed down to run_draft_agent inside of /agents/email_personalization.py
   
-
-
-
-
+email_personalization.py: this file handles formatting context into a prompt, possibly retrieving relevant resumes, and running the actual API call in order to select which type of resume is most relevant based on the company decscription 
+- function: run_draft_agent(context, agent, is_recruiter)
+- - NEEDS COMPLETION
 
 
 

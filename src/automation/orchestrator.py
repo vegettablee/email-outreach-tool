@@ -25,6 +25,8 @@ from enum import Enum
 from typing import Dict, List, Any
 from src.automation.workflows.draft_email import DraftEmailWorkflow
 from src.automation.session_state import SessionState
+from src.automation.agents.agent_manager import AgentManager
+from src.automation.agents.resume_selection import run_resume_selection_agent
 from db.connection import get_session
 
 
@@ -44,6 +46,7 @@ class OrchestrationLayer:
     Initialize the orchestration layer.
     """
     self.session = SessionState()
+    self.agents = AgentManager() 
     # TODO later: 
     # read config.json for rate-limiting capabilities 
 
@@ -54,35 +57,69 @@ class OrchestrationLayer:
     pass
 
   def run_draft_email_workflow(self, email_count : int):
-    db_session = get_session()
-    if not db_session:
-      return
-    all_emails = DraftEmailWorkflow.query_database(db_session)
-    company_emails = all_emails[0]
-    company_email_ids = all_emails[1]
-    recruiter_emails = all_emails[2]
-    recruiter_email_company_ids = all_emails[3]
+    print(f"\n=== Starting Draft Email Workflow (Target: {email_count} emails) ===\n")
 
-    num_to_draft = min(len(recruiter_emails) + len(company_emails), email_count)
-    counter = 0 
-    for c_idx, company_email in enumerate(company_emails):
-      if counter == num_to_draft - 1: 
-        break
-      context = DraftEmailWorkflow.get_company_context(db_session, company_email, company_email_ids[c_idx])
-      draft = DraftEmailWorkflow.draft_email(context=context, is_recruiter=False)
-      self.session.add_draft(draft)
-      counter += 1
-    for r_idx, recruiter_email in enumerate(recruiter_emails):
-      if counter == num_to_draft - 1: 
-        break
-      company_context = DraftEmailWorkflow.get_company_context(db_session, recruiter_email, recruiter_email_company_ids[r_idx])
-      recruiter_context = DraftEmailWorkflow.get_recruiter_context(db_session, recruiter_email)
-      context = {**company_context, **recruiter_context}
-      draft = DraftEmailWorkflow.draft_email(context=context, is_recruiter=True)
-      self.session.add_draft(draft)
-      counter += 1
+    with get_session() as db_session:
+      all_emails = DraftEmailWorkflow.query_database(db_session)
+      company_emails = all_emails[0]
+      company_email_ids = all_emails[1]
+      recruiter_emails = all_emails[2]
+      recruiter_email_company_ids = all_emails[3]
 
-    db_session.close() 
+      num_to_draft = min(len(recruiter_emails) + len(company_emails), email_count)
+      print(f"Found {len(company_emails)} company emails and {len(recruiter_emails)} recruiter emails")
+      print(f"Processing {num_to_draft} emails total\n")
+
+      counter = 0
+
+      # Process company emails
+      for c_idx, company_email in enumerate(company_emails):
+        if counter >= num_to_draft:
+          break
+
+        print(f"[{counter + 1}/{num_to_draft}] Processing company email: {company_email}")
+        context = DraftEmailWorkflow.get_company_context(db_session, company_email, company_email_ids[c_idx])
+
+        success, selected_resume = run_resume_selection_agent(context, self.agents.resume_selector_agent, is_recruiter=False)
+
+        if success:
+          print(f"  ✓ Selected resume: {selected_resume}")
+          print(f"  Company: {context.get('cname', 'Unknown')}")
+          # TODO: Pass selected_resume to draft_email function when implemented
+          # draft = DraftEmailWorkflow.draft_email(context=context, resume_type=selected_resume, is_recruiter=False)
+          # self.session.add_draft(draft)
+        else:
+          print(f"  ✗ Failed to select resume for {company_email}")
+
+        print()
+        counter += 1
+
+      # Process recruiter emails
+      for r_idx, recruiter_email in enumerate(recruiter_emails):
+        if counter >= num_to_draft:
+          break
+
+        print(f"[{counter + 1}/{num_to_draft}] Processing recruiter email: {recruiter_email}")
+        company_context = DraftEmailWorkflow.get_company_context(db_session, recruiter_email, recruiter_email_company_ids[r_idx])
+        recruiter_context = DraftEmailWorkflow.get_recruiter_context(db_session, recruiter_email)
+        context = {**company_context, **recruiter_context}
+
+        success, selected_resume = run_resume_selection_agent(context, self.agents.resume_selector_agent, is_recruiter=True)
+
+        if success:
+          print(f"  ✓ Selected resume: {selected_resume}")
+          print(f"  Company: {context.get('cname', 'Unknown')}")
+          print(f"  Recruiter: {context.get('fname', '')} {context.get('lname', '')}")
+          # TODO: Pass selected_resume to draft_email function when implemented
+          # draft = DraftEmailWorkflow.draft_email(context=context, resume_type=selected_resume, is_recruiter=True)
+          # self.session.add_draft(draft)
+        else:
+          print(f"  ✗ Failed to select resume for {recruiter_email}")
+
+        print()
+        counter += 1
+
+      print(f"\n=== Draft Workflow Complete: Processed {counter} emails ===\n") 
   
   def run_review_email_workflow(self): 
     pass

@@ -29,3 +29,4 @@ venv
 *.log
 
 automation_agent.egg-info
+personal_docs

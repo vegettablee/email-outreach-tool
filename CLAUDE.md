@@ -115,6 +115,21 @@ Scope: This scope is focused on a hybrid approach, not full automation, because 
 
 SQL Update Constraints: 
 - If updating contact_status on a recruiter to rejected/ghosted, then you must find all of the emails and mark them the same as well. 
-- If updating contact_status on a company, then find all of the emails tied to the company and mark as non-contactable(the emails )
+- If updating contact_status on a company, then find all of the emails tied to the company and mark as non-contactable(the emails)
 
-# Current Requirement in Progress: First Commands/Workflows Integration and Basic rate Limiting 
+Orchestration Layer Architecture and Interaction Patterns: 
+
+Orchestration Layer Implementation: 
+- contains multiple classes that instantiate a workflow class, and simply call the relevant workflow classes with key fields that are required, one of these fields include a rate-limiting variable pulled from the config.json file. 
+
+Orchestration layer data flow in more detail: 
+1. Commands.py calls the orchestrator class with its relevant workflow(draft, review, queue) 
+2. Orchestrator reads the config.json file and pulls the rate-limiting variables 
+3. Orchestrator calls workflow function with relevant arguments, including the rate-limiting variables 
+4. Workflow handles and return what was successfully completed: 
+- Query database for data needed
+- Coordinate multiple steps in sequence
+- Call agents with prepared context
+- Update session state
+- Handle workflow-specific errors
+

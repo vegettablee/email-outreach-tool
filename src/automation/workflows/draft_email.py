@@ -20,13 +20,13 @@ from db.queries import find_valid_emails, get_company, get_recruiter, get_recrui
 
 class DraftEmailWorkflow:
     """
-    Workflow class for drafting personalized cold emails.
+    Workflow class for helping draft personalized cold emails.
 
     This class coordinates the process of:
     1. Querying the database for valid emails
     2. Separating company emails from recruiter emails
     3. Getting context for personalization
-    4. Drafting emails using AI agents
+    4. Structuring context for agent 
     """
 
     def __init__(self, rate_limit: int = 20):
