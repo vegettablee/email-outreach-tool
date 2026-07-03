@@ -128,19 +128,29 @@ class HTMLTools:
                 return None
         return data
 
-    def get_card_testids(self, card_limit: int = 10, limit: int = 10) -> list[str]:
+    def get_card_testids(
+        self,
+        keyword: str | None = None,
+        card_limit: int = 10,
+        limit: int = 10,
+    ) -> list[dict]:
         cards = self.soup.find_all("div", {"data-testid": re.compile(r"^plp-product/\d+$")})
         if not cards:
             return []
-        seen: list[str] = []
-        for card in cards[:card_limit]:
-            for el in card.find_all(attrs={"data-testid": True}):
-                tid = el["data-testid"]
-                if tid not in seen:
-                    seen.append(tid)
-                    if len(seen) >= limit:
-                        return seen
-        return seen
+        counts: dict[str, int] = {}
+        first_seen: dict[str, int] = {}
+        for i, card in enumerate(cards[:card_limit]):
+            # per-card set: each testid counts once per card, not per element
+            card_testids = {el["data-testid"] for el in card.find_all(attrs={"data-testid": True})}
+            for tid in card_testids:
+                if keyword and keyword not in tid:
+                    continue
+                if tid not in counts:
+                    first_seen[tid] = i
+                    counts[tid] = 0
+                counts[tid] += 1
+        ordered = sorted(counts.keys(), key=lambda t: (-counts[t], first_seen[t]))
+        return [{"testid": t, "count": counts[t]} for t in ordered[:limit]]
 
     def get_element_context(
         self,
