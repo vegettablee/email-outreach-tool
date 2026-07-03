@@ -15,8 +15,11 @@ from CDP_script import connect, fetch_html
 from src.scraper.url_builder.builder import catalog_url as build_catalog_url
 
 class HTMLTools:
+    COVERAGE_HEAD_SIZE = 20
+
     def __init__(self, brand: str):
         self.brand = brand
+        self.batch_id: str | None = None
         self.config = self.set_scrape_config(brand)
         self.soup = None
 
@@ -110,6 +113,79 @@ class HTMLTools:
         return listings
 
     ## AGENT TOOLS GO PAST HERE ##
+
+    ALLOWED_FIELDS = ("size", "price_original", "price_final", "price_callout")
+
+    # Field name in scrape_config -> output-dict key produced by clean_catalog_html.
+    _CFG_TO_OUTPUT = {"price_original": "price", "price_final": "final_price"}
+
+    def try_field_suffixes(self, candidates: dict) -> dict:
+        """Test multiple candidate testid_suffixes per field in isolation.
+
+        `candidates` maps field name -> list of candidate suffixes to try, e.g.
+            {"price_final": ["-sale-price", "-price-final", "-discount"],
+             "price_original": ["-price-original"]}
+        For each (field, suffix) pair, only that field is patched; other
+        fields keep their current suffix. Suffixes are deduped per field.
+        Duplicate-suffix guard runs on the price fields: if a candidate
+        yields listings where price == final_price on every populated row,
+        that candidate's coverage is reported as 0 with a note.
+
+        Returns:
+            {"results": {field: {"best": {"suffix": s, "coverage": p},
+                                  "ranked": [{"suffix": s, "coverage": p, "note": str|None}, ...]}}}
+        Restores self.config on exit.
+        """
+        if self.batch_id is None:
+            raise RuntimeError("try_field_suffixes called before batch_id was bound")
+        if not candidates:
+            raise ValueError("candidates cannot be empty")
+        for field in candidates:
+            if field not in self.ALLOWED_FIELDS:
+                raise ValueError(f"unknown field {field!r}; allowed: {self.ALLOWED_FIELDS}")
+
+        old_config = self.config
+        results: dict = {}
+        try:
+            for field, suffix_list in candidates.items():
+                seen = set()
+                unique_suffixes = [s for s in suffix_list if not (s in seen or seen.add(s))]
+                out_key = self._CFG_TO_OUTPUT.get(field, field)
+                ranked = []
+
+                for suffix in unique_suffixes:
+                    self.config = {
+                        **old_config,
+                        "dom": {
+                            **old_config["dom"],
+                            "fields": {**old_config["dom"].get("fields", {}), field: suffix},
+                        },
+                    }
+                    listings = self.clean_catalog_html(self.brand, self.batch_id)
+                    head = listings[: self.COVERAGE_HEAD_SIZE]
+                    total = len(head)
+                    coverage = (
+                        sum(1 for l in head if l.get(out_key)) / total if total else 0.0
+                    )
+
+                    note = None
+                    if field in ("price_original", "price_final") and coverage > 0:
+                        pairs = [(l["price"], l["final_price"]) for l in head
+                                 if l.get("price") and l.get("final_price")]
+                        if pairs and all(p == f for p, f in pairs):
+                            other = "price_final" if field == "price_original" else "price_original"
+                            note = f"duplicate of {other} — suffixes resolve to the same DOM node"
+                            coverage = 0.0
+
+                    ranked.append({"suffix": suffix, "coverage": coverage, "note": note})
+
+                ranked.sort(key=lambda r: r["coverage"], reverse=True)
+                best = {"suffix": ranked[0]["suffix"], "coverage": ranked[0]["coverage"]} if ranked else None
+                results[field] = {"best": best, "ranked": ranked}
+
+            return {"results": results}
+        finally:
+            self.config = old_config
 
     def get_json_ld(self) -> dict:
         script = self.soup.find("script", {"type": "application/ld+json"})
